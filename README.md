@@ -4,7 +4,6 @@
 ### `yarn` 
 ### `yarn dev` 
 
-Runs the app in the development mode.\ Open [http://lo
 
 ## Home:
 
