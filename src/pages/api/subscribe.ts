@@ -13,6 +13,7 @@ type User = {
   }
 }
 
+/* eslint import/no-anonymous-default-export: [2, {"allowArrowFunction": true}] */
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === 'POST') {
     const session = await getSession({ req });
@@ -59,7 +60,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       allow_promotion_codes: true,
       success_url: process.env.STRIPE_SUCCESS_URL,
       cancel_url: process.env.STRIPE_CANCEL_URL,
-    })
+    });
 
     return res.status(200).json({ sessionId: stripeCheckoutSession.id });
   } else {
