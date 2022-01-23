@@ -6,6 +6,7 @@ import Prismic from '@prismicio/client';
 import { RichText } from 'prismic-dom';
 
 import styles from './styles.module.scss';
+import { getSession } from 'next-auth/client';
 
 interface Post {
   slug: string;
@@ -15,10 +16,14 @@ interface Post {
 }
 
 interface PostsProps {
-  posts: Post[]
+  posts: Post[];
+  session: {
+    activeSubscribe: boolean;
+  }
 }
 
-export default function Posts({ posts }: PostsProps) {
+export default function Posts({ posts, session }: PostsProps) {
+
   return (
     <>
       <Head>
@@ -26,8 +31,11 @@ export default function Posts({ posts }: PostsProps) {
       </Head>
       <main className={styles.container}>
         <div className={styles.posts}>
-          {posts.map(post => (
-            <Link key={post.slug} href={`/posts/${post.slug}`}>
+          {posts?.map(post => (
+            <Link
+              key={post.slug}
+              href={session?.activeSubscribe ? `/posts/${post.slug}` : `/posts/preview/${post.slug}`}
+            >
               <a>
                 <time>{post.updatedAt}</time>
                 <strong>{post.title}</strong>
@@ -44,6 +52,7 @@ export default function Posts({ posts }: PostsProps) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient();
+  const session = await getSession();
 
   const response = await prismic.query([
     Prismic.predicates.at('document.type', 'post')
@@ -52,7 +61,7 @@ export const getStaticProps: GetStaticProps = async () => {
     pageSize: 100,
   });
 
-  const posts = response.results.map(post => {
+  const posts = response.results?.map(post => {
     return {
       slug: post.uid,
       title: RichText.asText(post.data.title),
@@ -66,6 +75,6 @@ export const getStaticProps: GetStaticProps = async () => {
   });
 
   return {
-    props: { posts }
+    props: { posts, session }
   }
 }
